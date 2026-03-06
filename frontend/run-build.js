@@ -1,0 +1,1 @@
+const { execSync } = require('child_process'); try { const out = execSync('npx next build', { cwd: 'd:\\ATS-Frontend', encoding: 'utf8', stdio: 'pipe', timeout: 120000 }); console.log(out); } catch(e) { console.log('STDOUT:', e.stdout); console.log('STDERR:', e.stderr); }
