@@ -1,6 +1,11 @@
 const { GoogleGenAI } = require('@google/genai');
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+let ai;
+try {
+    ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || 'dummy_key_for_build' });
+} catch (error) {
+    console.warn('⚠️ Google Gen AI initialization skipped. Ensure GEMINI_API_KEY is set in production environment.');
+}
 
 /**
  * Extracts key details from a Job Description.

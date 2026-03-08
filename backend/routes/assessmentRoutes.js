@@ -4,13 +4,12 @@ const router = express.Router();
 const assessmentController = require('../controllers/assessmentController');
 const { verifyToken } = require('../middleware/auth');
 
-// Set up storage engine for Multer
 const storage = multer.diskStorage({
     destination: function(req, file, cb) {
-        cb(null, './uploads/'); // Make sure this folder exists
+        cb(null, '/tmp'); // Use Vercel's temporary directory
     },
     filename: function(req, file, cb) {
-        cb(null, Date.now() + '-' + file.originalname);
+        cb(null, Date.now() + '-' + file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_'));
     }
 });
 

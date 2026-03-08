@@ -18,6 +18,11 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Root endpoint for Vercel
+app.get('/', (req, res) => {
+    res.json({ status: 'ok', message: 'JDEX API is running!' });
+});
+
 // Health check endpoint
 app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', message: 'Backend is running smoothly!' });
