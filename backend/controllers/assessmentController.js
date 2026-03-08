@@ -155,6 +155,33 @@ async function getLeaderboard(req, res) {
     }
 }
 
+/**
+ * Fetch all assessments
+ */
+async function getAllAssessments(req, res) {
+    try {
+        const assessmentsRef = collection(db, 'assessments');
+        const q = query(assessmentsRef, orderBy('createdAt', 'desc'));
+        const querySnapshot = await getDocs(q);
+        
+        const assessments = [];
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            assessments.push({
+                id: doc.id,
+                title: data.parsedJd?.jobTitle || 'Untitled Assessment',
+                role: data.parsedJd?.jobTitle || 'N/A',
+                createdAt: data.createdAt
+            });
+        });
+
+        res.json(assessments);
+    } catch (error) {
+        console.error('Error fetching all assessments:', error);
+        res.status(500).json({ error: 'Failed to fetch assessments.' });
+    }
+}
+
 module.exports = {
     createAssessmentFromJd,
     getAssessment,
