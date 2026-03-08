@@ -6,7 +6,7 @@ const { verifyToken } = require('../middleware/auth');
 
 const storage = multer.diskStorage({
     destination: function(req, file, cb) {
-        cb(null, '/tmp'); // Use Vercel's temporary directory
+        cb(null, require('os').tmpdir()); // Use OS temp directory (Vercel compatible)
     },
     filename: function(req, file, cb) {
         cb(null, Date.now() + '-' + file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_'));
