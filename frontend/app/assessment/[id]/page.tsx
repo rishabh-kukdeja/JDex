@@ -16,6 +16,7 @@ export default function CandidateAssessmentPage() {
     const params = useParams();
     const router = useRouter();
     const assessmentId = params.id as string;
+    const apiBaseUrl = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000").replace(/\/$/, "");
 
     const [assessment, setAssessment] = useState<any>(null);
     const [loading, setLoading] = useState(true);
@@ -42,8 +43,7 @@ export default function CandidateAssessmentPage() {
     useEffect(() => {
         async function fetchAssessment() {
             try {
-                const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-                const res = await fetch(`${apiUrl}/api/assessments/${assessmentId}`);
+                const res = await fetch(`${apiBaseUrl}/api/assessments/${assessmentId}`);
                 if (!res.ok) throw new Error("Assessment not found");
                 const data = await res.json();
 
@@ -87,8 +87,7 @@ export default function CandidateAssessmentPage() {
         setError(null);
 
         try {
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-            const res = await fetch(`${apiUrl}/api/assessments/${assessmentId}/submit`, {
+            const res = await fetch(`${apiBaseUrl}/api/assessments/${assessmentId}/submit`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({

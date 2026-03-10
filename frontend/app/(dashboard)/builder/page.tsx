@@ -28,6 +28,8 @@ export default function AssessmentBuilder() {
     const [assessmentId, setAssessmentId] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
 
+    const apiBaseUrl = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000").replace(/\/$/, "");
+
     const handleGenerate = async () => {
         if (!jdText.trim()) {
             setError("Please paste a Job Description.");
@@ -48,8 +50,7 @@ export default function AssessmentBuilder() {
             }
 
             // API Call to Node/Express Backend
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-            const res = await fetch(`${apiUrl}/api/assessments/generate`, {
+            const res = await fetch(`${apiBaseUrl}/api/assessments/generate`, {
                 method: 'POST',
                 body: formData,
                 headers: {
@@ -57,7 +58,8 @@ export default function AssessmentBuilder() {
                 }
             });
 
-            const data = await res.json();
+            const contentType = res.headers.get("content-type") || "";
+            const data = contentType.includes("application/json") ? await res.json() : { error: await res.text() };
 
             if (!res.ok) {
                 throw new Error(data.error || 'Something went wrong');
@@ -73,7 +75,7 @@ export default function AssessmentBuilder() {
 
     const handlePublishGoogleForms = async () => {
         try {
-            const res = await fetch(`http://localhost:5000/api/assessments/${assessmentId}/publish`, {
+            const res = await fetch(`${apiBaseUrl}/api/assessments/${assessmentId}/publish`, {
                 method: 'POST'
             });
             const data = await res.json();

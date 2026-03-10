@@ -10,6 +10,7 @@ import { auth } from "@/lib/firebase";
 export default function AssessmentsPage() {
     const [assessments, setAssessments] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const apiBaseUrl = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000").replace(/\/$/, "");
 
     useEffect(() => {
         const fetchAssessments = async () => {
@@ -20,8 +21,7 @@ export default function AssessmentsPage() {
                     return;
                 }
 
-                const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-                const res = await fetch(`${apiUrl}/api/assessments`, {
+                const res = await fetch(`${apiBaseUrl}/api/assessments`, {
                     headers: {
                         Authorization: `Bearer ${token}`
                     }

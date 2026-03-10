@@ -12,6 +12,7 @@ export default function LeaderboardPage() {
     const params = useParams();
     const router = useRouter();
     const assessmentId = params.id as string;
+    const apiBaseUrl = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000").replace(/\/$/, "");
 
     const [leaderboard, setLeaderboard] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
@@ -20,7 +21,7 @@ export default function LeaderboardPage() {
     useEffect(() => {
         async function fetchLeaderboard() {
             try {
-                const res = await fetch(`http://localhost:5000/api/assessments/${assessmentId}/leaderboard`);
+                const res = await fetch(`${apiBaseUrl}/api/assessments/${assessmentId}/leaderboard`);
                 if (!res.ok) throw new Error("Failed to fetch leaderboard");
                 const data = await res.json();
 
