@@ -1,16 +1,28 @@
 const { GoogleGenAI } = require('@google/genai');
 
 let ai;
+const hasRealGeminiKey =
+    typeof process.env.GEMINI_API_KEY === 'string' &&
+    process.env.GEMINI_API_KEY.trim().length > 0 &&
+    process.env.GEMINI_API_KEY !== 'dummy_key_for_build';
+
 try {
     ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || 'dummy_key_for_build' });
 } catch (error) {
     console.warn('⚠️ Google Gen AI initialization skipped. Ensure GEMINI_API_KEY is set in production environment.');
 }
 
+function requireGemini() {
+    if (!ai || !hasRealGeminiKey) {
+        throw new Error('GEMINI_API_KEY is missing/invalid on the server.');
+    }
+}
+
 /**
  * Extracts key details from a Job Description.
  */
 async function parseJobDescription(jdText) {
+    requireGemini();
     const prompt = `You are an expert technical recruiter and AI assessment designer.
 I will give you a job description. You must extract the following exact JSON structure and nothing else:
 {
@@ -19,7 +31,7 @@ I will give you a job description. You must extract the following exact JSON str
   "domain": "string",
   "keyResponsibilities": ["array of strings"],
   "coreSkillsRequired": ["array of strings"],
-  "differentiatingFactors": ["what separates a great hire from a good one for this role based on JD details"]
+  "differentiatingFactors": "what separates a great hire from a good one for this role based on JD details"
 }
 Here is the job description:
 ${jdText}`;
@@ -43,6 +55,7 @@ ${jdText}`;
  * Generates an assessment using the parsed job description.
  */
 async function generateAssessment(parsedJd, type) {
+    requireGemini();
     let subPrompt = '';
     let jsonStructure = '';
 
@@ -96,12 +109,22 @@ async function generateAssessment(parsedJd, type) {
 }`;
     }
 
+    const differentiatingFactors =
+        Array.isArray(parsedJd?.differentiatingFactors)
+            ? parsedJd.differentiatingFactors.join(', ')
+            : (parsedJd?.differentiatingFactors || '');
+
+    const coreSkills =
+        Array.isArray(parsedJd?.coreSkillsRequired)
+            ? parsedJd.coreSkillsRequired.join(', ')
+            : (parsedJd?.coreSkillsRequired || '');
+
     const prompt = `You are designing a screening assessment for the following role:
 Role: ${parsedJd.role}
 Seniority: ${parsedJd.seniority}
 Domain: ${parsedJd.domain}
-Primary Skills: ${parsedJd.coreSkillsRequired.join(', ')}
-What separates great from good: ${parsedJd.differentiatingFactors.join(', ')}
+Primary Skills: ${coreSkills}
+What separates great from good: ${differentiatingFactors}
 
 ${subPrompt}
 
@@ -127,6 +150,7 @@ ${jsonStructure}`;
  * Evaluates a candidate's subjective questions using Gemini.
  */
 async function evaluateCandidate(candidateAnswers, assessmentConfig) {
+    requireGemini();
     const prompt = `You are a strict, highly accurate AI assessor.
 Evaluate the candidate's answers based directly on the provided assessment configuration.
 

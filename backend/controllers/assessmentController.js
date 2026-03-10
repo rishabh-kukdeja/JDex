@@ -55,7 +55,10 @@ async function createAssessmentFromJd(req, res) {
 
     } catch (error) {
         console.error('Controller Error:', error);
-        res.status(500).json({ error: 'Failed to process Job Description.' });
+        res.status(500).json({
+            error: 'Failed to process Job Description.',
+            details: error?.message || String(error)
+        });
     }
 }
 
@@ -169,8 +172,8 @@ async function getAllAssessments(req, res) {
             const data = doc.data();
             assessments.push({
                 id: doc.id,
-                title: data.parsedJd?.jobTitle || 'Untitled Assessment',
-                role: data.parsedJd?.jobTitle || 'N/A',
+                title: data.parsedJd?.role || 'Untitled Assessment',
+                role: data.parsedJd?.role || 'N/A',
                 createdAt: data.createdAt
             });
         });
